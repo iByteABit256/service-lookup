@@ -69,7 +69,7 @@ To use the utility, run the main script with the desired options:
 ### Basic Command
 
 ```bash
-service-lookup --root /path/to/root --namespace your-namespace --services service1,service2 --exclude path/to/exclude
+service-lookup --root /path/to/root --namespace your-namespace --services service1,service2 --exclude path/to/exclude,another/path/to/exclude
 ```
 
 ### Setup Environment from Kubernetes Lens
@@ -86,7 +86,7 @@ If you have predefined mappings:
 
 
 ```bash
-service-lookup --root /path/to/root --map service1=localhost:8080,service2=localhost:8081 --exclude path/to/exclude
+service-lookup --root /path/to/root --map service1=localhost:8080,service2=localhost:8081 --exclude path/to/exclude,another/path/to/exclude
 ```
 
 ### Options
@@ -98,6 +98,7 @@ service-lookup --root /path/to/root --map service1=localhost:8080,service2=local
 - `-v`, `--services`: Comma-separated list of service names to port forward.
 - `-f`, `--mapping-file`: Path to JSON file with service mappings.
 - `-s`, `--setup`: Run setup to configure KUBECONFIG.
+- `-c`, `--clean`: Specify ports to clean up port-forwarded processes.
 
 ## Configuration
 
@@ -115,6 +116,14 @@ Create a `service_mappings.json` file to map local service names to Kubernetes s
 ### Exclusion Paths
 
 Use the `--exclude` option to specify paths in the root directory that should be excluded from updates.
+
+### Clean Port Forwarded Processes
+
+Use the `--clean` option to kill port forwarded processes:
+
+```bash
+service-lookup --clean port1 port2 port3
+```
 
 ## Contributing
 
