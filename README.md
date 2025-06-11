@@ -28,12 +28,18 @@ A Python-based tool for updating YAML configuration files with dynamic host and 
 - Access to a Kubernetes cluster
 - [uv](https://docs.astral.sh/uv/)
 
-### Installation from PyPI
+## Installation from PyPI
 
 Once the package is published on PyPI, you can install it using pip:
 ```bash
 pip install service-lookup
 ```
+
+### Add to PATH
+
+In order to be able to call `service-lookup` directly from any directory, you must add the Python scripts directory to your PATH environment variable.
+
+The default location for Windows is `<User_Directory>/AppData/Local/Programs/Python/<Python_Version>/Scripts`.
 
 ## Installation From Repository
 
@@ -48,7 +54,12 @@ pip install service-lookup
    uv sync
    ```
 
-3. **Ensure `kubectl` is Installed**:
+3. **Add to pip modules (Optional)**
+   ```bash
+   pip install .
+   ```
+
+4. **Ensure `kubectl` is Installed**:
    Make sure you have `kubectl` installed and configured to access your Kubernetes cluster.
 
 ## Usage
@@ -58,7 +69,7 @@ To use the utility, run the main script with the desired options:
 ### Basic Command
 
 ```bash
-python main.py --root /path/to/root --namespace your-namespace --services service1,service2 --exclude path/to/exclude
+service-lookup --root /path/to/root --namespace your-namespace --services service1,service2 --exclude path/to/exclude
 ```
 
 ### Setup Environment
@@ -66,16 +77,16 @@ python main.py --root /path/to/root --namespace your-namespace --services servic
 To set up your environment for Kubernetes configuration, use:
 
 ```bash
-python main.py --setup
+service-lookup --setup
 ```
 
-### With Mapping
+### With Mappings
 
 If you have predefined mappings:
 
 
 ```bash
-python main.py --map service1=localhost:8080,service2=localhost:8081
+service-lookup --root /path/to/root --map service1=localhost:8080,service2=localhost:8081 --exclude path/to/exclude
 ```
 
 ### Options

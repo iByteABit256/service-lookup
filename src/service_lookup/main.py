@@ -1,8 +1,8 @@
 import argparse
 from pathlib import Path
-from uri_updater import update_directory
-from lookup_cluster import discover_services_and_port_forward, load_service_mappings
-from kubeconfig_setup import generate_batch_file
+from .uri_updater import update_directory
+from .lookup_cluster import discover_services_and_port_forward, load_service_mappings
+from .kubeconfig_setup import generate_batch_file
 
 def run_setup():
     # Generate the batch file

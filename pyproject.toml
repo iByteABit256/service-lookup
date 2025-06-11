@@ -1,6 +1,6 @@
 [project]
 name = "service-lookup"
-version = "0.1.0"
+version = "0.1.4"
 description = "Update host:port in YAML service URLs by service name and Kubernetes cluster"
 authors = [
   { name="Pavlos Smith", email="paulsmith4561@proton.me" },
@@ -13,5 +13,8 @@ dependencies = [
 ]
 
 [project.urls]
-# homepage = "https://github.com/P403n1x87/austin-python"
-# repository = "https://github.com/P403n1x87/austin-python"
+homepage = "https://github.com/iByteABit256/service-lookup"
+repository = "https://pypi.org/project/service-lookup/"
+
+[project.scripts]
+service-lookup = "service_lookup.main:main"
