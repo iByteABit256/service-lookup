@@ -60,7 +60,7 @@ The default location for Windows is `<User_Directory>/AppData/Local/Programs/Pyt
    ```
 
 4. **Ensure `kubectl` is Installed**:
-   Make sure you have `kubectl` installed and configured to access your Kubernetes cluster.
+   Make sure you have `kubectl` installed and configured to access your Kubernetes cluster. You should either have a `.kubeconfig` file or run the setup command if you're using [Lens](https://k8slens.dev/).
 
 ## Usage
 
@@ -72,9 +72,9 @@ To use the utility, run the main script with the desired options:
 service-lookup --root /path/to/root --namespace your-namespace --services service1,service2 --exclude path/to/exclude
 ```
 
-### Setup Environment
+### Setup Environment from Kubernetes Lens
 
-To set up your environment for Kubernetes configuration, use:
+To set up your environment based on your [Lens](https://k8slens.dev/) configuration, run:
 
 ```bash
 service-lookup --setup
