@@ -2,9 +2,9 @@
 
 import re
 from pathlib import Path
-import ruamel.yaml
+from ruamel.yaml import YAML
 
-yaml = ruamel.yaml.YAML()
+yaml = YAML()
 yaml.preserve_quotes = True
 
 def replace_host_port(url, new_host_port):
