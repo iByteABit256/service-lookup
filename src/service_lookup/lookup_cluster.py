@@ -1,3 +1,5 @@
+"""Looks up services in a Kubernetes cluster, and returns a map with the forwarded local ports"""
+
 import subprocess
 import json
 import socket
@@ -11,7 +13,7 @@ def get_free_port():
 def load_service_mappings(mapping_file):
     """Load service mappings from a JSON file."""
     try:
-        with open(mapping_file, 'r') as f:
+        with open(mapping_file, 'r', encoding="utf-8") as f:
             return json.load(f)
     except FileNotFoundError:
         print(f"Mapping file {mapping_file} not found.")
@@ -21,6 +23,7 @@ def load_service_mappings(mapping_file):
         return {}
 
 def discover_services_and_port_forward(namespace, service_filter, service_mappings):
+    """Looks up services in a Kubernetes cluster, returns a map with the forwarded local ports"""
     try:
         # Execute the kubectl command to list services in the namespace
         result = subprocess.run(
@@ -45,7 +48,8 @@ def discover_services_and_port_forward(namespace, service_filter, service_mappin
                 continue
 
             # Find the corresponding Kubernetes service
-            service = next((s for s in services.get("items", []) if s["metadata"]["name"] == k8s_service_name), None)
+            service = next((s for s in services.get("items", [])
+                if s["metadata"]["name"] == k8s_service_name), None)
 
             if not service:
                 print(f"Kubernetes service '{k8s_service_name}' not found.")
@@ -60,9 +64,12 @@ def discover_services_and_port_forward(namespace, service_filter, service_mappin
                 replacements[local_name] = f"localhost:{local_port}"
 
                 # Port forward the service
-                print(f"Port-forwarding service {k8s_service_name} from target port {target_port} to local port {local_port}")
+                print(f"Port-forwarding service {k8s_service_name} from \
+                    target port {target_port} to local port {local_port}")
+                # pylint: disable=consider-using-with
                 subprocess.Popen(
-                    ["kubectl", "port-forward", f"service/{k8s_service_name}", f"{local_port}:{target_port}", "-n", namespace],
+                    ["kubectl", "port-forward", f"service/{k8s_service_name}",
+                        f"{local_port}:{target_port}", "-n", namespace],
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE
                 )
 

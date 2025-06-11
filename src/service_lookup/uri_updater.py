@@ -1,4 +1,5 @@
-import argparse
+"""Updates URI properties found in YAML files under the given root"""
+
 import re
 from pathlib import Path
 import ruamel.yaml
@@ -11,7 +12,8 @@ def replace_host_port(url, new_host_port):
     return re.sub(r"(http://)([^/]+)", rf"\1{new_host_port}", url)
 
 def update_yaml_urls_by_key(file_path, replacements):
-    with open(file_path, 'r') as f:
+    """Update URI properties by service name"""
+    with open(file_path, 'r', encoding="utf-8") as f:
         data = yaml.load(f)
 
     if not isinstance(data, dict):
@@ -40,16 +42,16 @@ def update_yaml_urls_by_key(file_path, replacements):
     recurse_dict(data)
 
     if updated:
-        with open(file_path, 'w') as f:
+        with open(file_path, 'w', encoding="utf-8") as f:
             yaml.dump(data, f)
         print(f"✅ Updated: {file_path}")
 
 def update_directory(root_path: Path, replacements: dict[str, str], exclude_paths: list[str]):
+    """Updates URI properties in YAML files under the root path"""
     for file in root_path.rglob("*.yml"):
-        print(file)
         if any(exclude in str(file) for exclude in exclude_paths):
-                print(f"❌ Skipped: {file} (excluded)")
-                continue
+            print(f"❌ Skipped: {file} (excluded)")
+            continue
 
         if update_yaml_urls_by_key(file, replacements):
             print(f"✅ Updated: {file}")

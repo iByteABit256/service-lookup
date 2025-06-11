@@ -1,4 +1,5 @@
-import argparse
+"""Kills processes based on ther listening port"""
+
 import subprocess
 import os
 import signal
@@ -20,7 +21,7 @@ def get_pids_for_ports(ports):
                 parts = line.split()
                 pid = parts[-1]
                 pids.add(pid)
-        
+
         return pids
     except subprocess.CalledProcessError as e:
         print(f"Error retrieving netstat information: {e.stderr}")
@@ -31,7 +32,7 @@ def kill_process(pid):
     try:
         os.kill(int(pid), signal.SIGTERM)
         print(f"Process {pid} terminated.")
-    except Exception as e:
+    except OSError as e:
         print(f"Failed to terminate process {pid}: {e}")
 
 def clean_ports(ports):
