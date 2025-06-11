@@ -1,5 +1,19 @@
 import os
+import subprocess
 from pathlib import Path
+
+def run_setup():
+    # Generate the batch file
+    batch_file_path = generate_batch_file()
+
+    if batch_file_path:
+        # Execute the batch file
+        print("Executing generated script...")
+        print(f"Batch file created at: {batch_file_path}")
+        print("Please run the following command in your command prompt to set the KUBECONFIG variable:")
+        print(f"{batch_file_path}")
+    else:
+        print("Failed to create batch file.")
 
 def generate_batch_file():
     # Define the Lens kubeconfigs directory
@@ -35,3 +49,4 @@ def generate_batch_file():
         batch_file.write(batch_content)
 
     print(f"Batch file created at: {batch_file_path}")
+    return str(batch_file_path)

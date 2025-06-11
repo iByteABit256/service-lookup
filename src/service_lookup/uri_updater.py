@@ -46,6 +46,7 @@ def update_yaml_urls_by_key(file_path, replacements):
 
 def update_directory(root_path: Path, replacements: dict[str, str], exclude_paths: list[str]):
     for file in root_path.rglob("*.yml"):
+        print(file)
         if any(exclude in str(file) for exclude in exclude_paths):
                 print(f"❌ Skipped: {file} (excluded)")
                 continue
