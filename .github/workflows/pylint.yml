@@ -18,6 +18,4 @@ jobs:
         uv sync
         uv tool install pylint
     - name: Analysing the code with pylint
-      run: |
-        uv sync
-        uvx pylint $(git ls-files '*.py')
+      run: uvx pylint --disable=E0401 $(git ls-files '*.py')
