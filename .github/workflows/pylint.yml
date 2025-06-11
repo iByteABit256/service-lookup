@@ -16,7 +16,7 @@ jobs:
     - name: Install dependencies
       run: |
         uv sync
-        uv pip install pylint
+        uv tool install pylint
     - name: Analysing the code with pylint
       run: |
-        pylint $(git ls-files '*.py')
+        uvx pylint $(git ls-files '*.py')
