@@ -19,13 +19,15 @@ A Python-based tool for updating YAML configuration files with dynamic host and 
 - **Port Forwarding**: Port forward Kubernetes services to your local machine for development and testing purposes.
 - **Custom Mappings**: Use custom mappings to handle services with different names locally and in Kubernetes.
 - **Exclusion of Files**: Specify paths to exclude from YAML updates.
-- **Setup Utility**: Configure your environment with a simple setup command.
+- **Setup from Lens Utility**: Configure your environment with a simple setup command if using [Lens](https://k8slens.dev/).
 
 ## Requirements
 
-- Python 3.7 or later
+- Python 3.12 or later
 - `kubectl` installed and configured
 - Access to a Kubernetes cluster
+
+### For Local Build
 - [uv](https://docs.astral.sh/uv/)
 
 ## Installation from PyPI
