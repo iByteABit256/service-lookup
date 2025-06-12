@@ -138,7 +138,3 @@ All contributions are welcome! To contribute:
 ## License
 
 This project is licensed under the GNU GPL-3.0 License. See the [LICENSE](LICENSE) file for more details.
-
-## Contact
-
-For questions or feedback, please reach out via the project's GitHub issues page or contact the maintainer directly.
