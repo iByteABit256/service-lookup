@@ -30,7 +30,6 @@ A Python-based tool for updating YAML configuration files with dynamic host and 
 
 ## Installation from PyPI
 
-Once the package is published on PyPI, you can install it using pip:
 ```bash
 pip install service-lookup
 ```
