@@ -21,6 +21,23 @@ A Python-based tool for updating YAML configuration files with dynamic host and 
 - **Exclusion of Files**: Specify paths to exclude from YAML updates.
 - **Setup from Lens Utility**: Configure your environment with a simple setup command if using [Lens](https://k8slens.dev/).
 
+## Example
+```bash
+service-lookup --root . --namespace dev --services service1,service2 --use-lens --exclude ./target
+
+Port-forwarding service service1 from target port 8080 to local port 24836
+Port-forwarding service service2 from target port 8080 to local port 24837
+
+✅ Updated: ..\..\IdeaProjects\cwm\service1\service1-adapter\src\main\resources\application-service1-adapter.yml
+✅ Updated: ..\..\IdeaProjects\cwm\service2\service2-adapter\src\main\resources\application-service2-adapter.yml
+
+Press 'ctrl+q' to clean ports and exit.
+
+✅ Process 3740 terminated.
+✅ Process 30260 terminated.
+✅ Process 31400 terminated.
+```
+
 ## Requirements
 
 - Python 3.12 or later
@@ -75,16 +92,15 @@ service-lookup --root /path/to/root --namespace your-namespace --services servic
 
 ### Setup Environment from Kubernetes Lens
 
-To set up your environment based on your [Lens](https://k8slens.dev/) configuration, run:
+To set up your environment based on your [Lens](https://k8slens.dev/) configuration, use the `--use-lens` parameter:
 
 ```bash
-service-lookup --setup
+service-lookup --root /path/to/root --namespace your-namespace --services service1,service2 --exclude path/to/exclude,another/path/to/exclude --use-lens
 ```
 
 ### With Mappings
 
 If you have predefined mappings:
-
 
 ```bash
 service-lookup --root /path/to/root --map service1=localhost:8080,service2=localhost:8081 --exclude path/to/exclude,another/path/to/exclude
@@ -96,10 +112,9 @@ service-lookup --root /path/to/root --map service1=localhost:8080,service2=local
 - `-e`, `--exclude`: Comma-separated list of paths to exclude.
 - `-m`, `--map`: Comma-separated service=host:port pairs.
 - `-n`, `--namespace`: Kubernetes namespace to discover services.
-- `-v`, `--services`: Comma-separated list of service names to port forward.
+- `-s`, `--services`: Comma-separated list of service names to port forward.
 - `-f`, `--mapping-file`: Path to JSON file with service mappings.
-- `-s`, `--setup`: Run setup to configure KUBECONFIG.
-- `-c`, `--clean`: Specify ports to clean up port-forwarded processes.
+- `-l`, `--use-lens`: Use kubeconfigs from Lens.
 
 ## Configuration
 
@@ -117,14 +132,6 @@ Create a `service_mappings.json` file to map local service names to Kubernetes s
 ### Exclusion Paths
 
 Use the `--exclude` option to specify paths in the root directory that should be excluded from updates.
-
-### Clean Port Forwarded Processes
-
-Use the `--clean` option to kill port forwarded processes:
-
-```bash
-service-lookup --clean port1 port2 port3
-```
 
 ## Contributing
 
