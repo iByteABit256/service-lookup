@@ -62,6 +62,43 @@ def get_context_from_kubeconfig(kubecfg):
         print(f"Error reading kubeconfig {kubecfg}: {e}")
         return None
 
+def port_forward_services(service_filter, service_mappings, services, namespace, kubecfg):
+    """Port forward services, return a [service_name, local_port] map and a list of local ports"""
+    # Initialize replacements dictionary
+    replacements = {}
+    forwarded_ports = []
+
+    # Process each service
+    for local_name in service_filter:
+        k8s_service_name = service_mappings.get(local_name)
+        service = next((s for s in services.get("items", [])
+            if s["metadata"]["name"] == k8s_service_name), None)
+
+        if service and k8s_service_name:
+            ports = service.get("spec", {}).get("ports", [])
+            if ports:
+                # Get a free local port and port forward the service
+                local_port = get_free_port()
+                replacements[local_name] = f"localhost:{local_port}"
+                target_port = ports[0]["port"]
+
+                print(f"Port-forwarding service {k8s_service_name} from target port \
+{target_port} to local port {local_port}")
+
+                # pylint: disable=consider-using-with
+                subprocess.Popen(
+                    ["kubectl", "port-forward", f"service/{k8s_service_name}",
+                        f"{local_port}:{target_port}", "-n", namespace, "--kubeconfig", kubecfg],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                )
+
+                forwarded_ports.append(local_port)
+        else:
+            print(f"No mapping found or service '{local_name}' not found in the namespace.")
+
+    print()
+    return replacements, forwarded_ports
+
 def discover_services_and_port_forward(namespace, service_filter,
     service_mappings, kubeconfigs=None):
     """Looks up services in a Kubernetes cluster, returns a map with the forwarded local ports."""
@@ -90,36 +127,8 @@ def discover_services_and_port_forward(namespace, service_filter,
             capture_output=True, text=True, check=True
         ).stdout)
 
-        # Initialize replacements dictionary
-        replacements = {}
-
-        # Process each service
-        for local_name in service_filter:
-            k8s_service_name = service_mappings.get(local_name)
-            service = next((s for s in services.get("items", [])
-                if s["metadata"]["name"] == k8s_service_name), None)
-
-            if service and k8s_service_name:
-                ports = service.get("spec", {}).get("ports", [])
-                if ports:
-                    # Get a free local port and port forward the service
-                    local_port = get_free_port()
-                    replacements[local_name] = f"localhost:{local_port}"
-                    target_port = ports[0]["port"]
-
-                    print(f"Port-forwarding service {k8s_service_name} from target port \
-{target_port} to local port {local_port}")
-
-                    # pylint: disable=consider-using-with
-                    subprocess.Popen(
-                        ["kubectl", "port-forward", f"service/{k8s_service_name}",
-                         f"{local_port}:{target_port}", "-n", namespace, "--kubeconfig", kubecfg],
-                        stdout=subprocess.PIPE, stderr=subprocess.PIPE
-                    )
-            else:
-                print(f"No mapping found or service '{local_name}' not found in the namespace.")
-
-        return replacements
+        return port_forward_services(service_filter, service_mappings,
+            services, namespace, kubecfg)
 
     except subprocess.CalledProcessError as e:
         print(f"Error listing services: {e.stderr}")

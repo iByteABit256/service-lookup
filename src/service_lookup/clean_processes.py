@@ -31,9 +31,9 @@ def kill_process(pid):
     """Attempt to kill a process by PID."""
     try:
         os.kill(int(pid), signal.SIGTERM)
-        print(f"Process {pid} terminated.")
+        print(f"✅ Process {pid} terminated.")
     except OSError as e:
-        print(f"Failed to terminate process {pid}: {e}")
+        print(f"❌ Failed to terminate process {pid}: {e}")
 
 def clean_ports(ports):
     """Clean processes associated with specified ports."""
@@ -43,8 +43,4 @@ def clean_ports(ports):
         return
 
     for pid in pids:
-        response = input(f"Do you want to terminate process {pid}? (y/n): ").strip().lower()
-        if response == 'y':
-            kill_process(pid)
-        else:
-            print(f"Skipping process {pid}.")
+        kill_process(pid)

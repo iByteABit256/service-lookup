@@ -30,7 +30,6 @@ def update_yaml_urls_by_key(file_path, replacements):
         for key, value in d.items():
             if isinstance(value, dict):
                 for service, new_host_port in replacements.items():
-                    # print("Current node: [{0}, {1}]".format(key, value))
                     if key == service and "url" in value and isinstance(value["url"], str):
                         old_url = value["url"]
                         new_url = replace_host_port(old_url, new_host_port)
@@ -58,3 +57,4 @@ def update_directory(root_path: Path, replacements: dict[str, str], exclude_path
 
         if update_yaml_urls_by_key(file, replacements):
             print(f"✅ Updated: {file}")
+    print()

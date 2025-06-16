@@ -9,6 +9,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = "GPL-3.0"
 dependencies = [
+    "keyboard>=0.13.5",
     "ruamel-yaml>=0.18.14",
 ]
 
