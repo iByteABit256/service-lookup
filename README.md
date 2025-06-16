@@ -112,8 +112,8 @@ service-lookup --root /path/to/root --map service1=localhost:8080,service2=local
 - `-e`, `--exclude`: Comma-separated list of paths to exclude.
 - `-m`, `--map`: Comma-separated service=host:port pairs.
 - `-n`, `--namespace`: Kubernetes namespace to discover services.
-- `-s`, `--services`: Comma-separated list of service names to port forward.
-- `-f`, `--mapping-file`: Path to JSON file with service mappings.
+- `-s`, `--services`: Comma-separated list of service names to port forward. Default value is '*' which means every service in the mapping file.
+- `-f`, `--mapping-file`: Path to JSON file with service_name -> kubernetes_service_name mappings.
 - `-l`, `--use-lens`: Use kubeconfigs from Lens.
 
 ## Configuration
@@ -128,6 +128,8 @@ Create a `service_mappings.json` file to map local service names to Kubernetes s
     "local-service-b-name": "kubernetes-service-b-name"
 }
 ```
+
+Running without the `--services` option searches for every service in the mappings file above.
 
 ### Exclusion Paths
 
