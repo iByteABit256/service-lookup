@@ -26,9 +26,11 @@ def main():
     parser.add_argument('-m', '--map', help="Comma-separated service=host:port pairs")
     parser.add_argument('-n', '--namespace', help="Kubernetes namespace to discover services")
     parser.add_argument('-s', '--services',
-        help="Comma-separated list of service names to port forward")
+        help="Comma-separated list of service names to port forward. \
+Default value is '*' which means every service in the mapping file", default="*")
     parser.add_argument('-f', '--mapping-file',
-        default='service_mappings.json', help="Path to JSON file with service mappings")
+        default='service_mappings.json',
+        help="Path to JSON file with service_name -> kubernetes_service_name mappings")
     args = parser.parse_args()
 
     forwarded_ports = []
@@ -37,10 +39,17 @@ def main():
         replacements = dict(pair.split('=') for pair in args.map.split(','))
     elif args.services and args.namespace:
         service_mappings = load_service_mappings(args.mapping_file)
-        service_filter = args.services.split(',')
+
+        if args.services == "*":
+            service_filter = list(service_mappings.keys())
+            print(f"Searching all services from mapping file: {service_filter}\n")
+        else:
+            service_filter = args.services.split(',')
+
         replacements, forwarded_ports = discover_services_and_port_forward(
             args.namespace, service_filter, service_mappings,
-                get_kubeconfigs() if args.use_lens else None)
+            get_kubeconfigs() if args.use_lens else None
+        )
     else:
         print("Error: You must either provide a Kubernetes cluster namespace \
 and selected services, or a service=host:port map.")
