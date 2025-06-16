@@ -28,8 +28,8 @@ service-lookup --root . --namespace dev --services service1,service2 --use-lens 
 Port-forwarding service service1 from target port 8080 to local port 24836
 Port-forwarding service service2 from target port 8080 to local port 24837
 
-✅ Updated: ..\..\IdeaProjects\cwm\service1\service1-adapter\src\main\resources\application-service1-adapter.yml
-✅ Updated: ..\..\IdeaProjects\cwm\service2\service2-adapter\src\main\resources\application-service2-adapter.yml
+✅ Updated: .\service1\service1-adapter\src\main\resources\application-service1-adapter.yml
+✅ Updated: .\service2\service2-adapter\src\main\resources\application-service2-adapter.yml
 
 Press 'ctrl+q' to clean ports and exit.
 
