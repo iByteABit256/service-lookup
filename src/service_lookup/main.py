@@ -13,7 +13,7 @@ def wait_for_user_command():
 
     print("Press 'ctrl+q' to clean ports and exit.")
     keyboard.wait('ctrl+q')
-    print()
+    print("cntrl+q pressed, cleaning up ports and exiting...")
 
 def main():
     """Driver for service-lookup utility"""
