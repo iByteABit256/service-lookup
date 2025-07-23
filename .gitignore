@@ -9,4 +9,3 @@ wheels/
 # Virtual environments
 .venv
 .vscode/
-```3.  Save and close the `.gitignore` file.
