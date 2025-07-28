@@ -60,10 +60,9 @@ def get_context_from_kubeconfig(kubecfg):
         return None
 
 def port_forward_services(service_filter, service_mappings, services, namespace, kubectl):
-    """Port forward services, return a [service_name, local_port] map and a list of local ports"""
+    """Port forward services, return a [service_name, local_port] map"""
 
     replacements = {}
-    forwarded_ports = []
 
     for local_name in service_filter:
         k8s_service_name = service_mappings.get(local_name)
@@ -78,12 +77,11 @@ def port_forward_services(service_filter, service_mappings, services, namespace,
                 target_port = ports[0]["port"]
 
                 kubectl.port_forward(namespace, k8s_service_name, local_port, target_port)
-                forwarded_ports.append(local_port)
         else:
             print(f"No mapping found or service '{local_name}' not found in the namespace.")
 
     print()
-    return replacements, forwarded_ports
+    return replacements
 
 
 def discover_services_and_port_forward(namespace, service_filter,
