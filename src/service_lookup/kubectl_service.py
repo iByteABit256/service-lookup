@@ -90,6 +90,7 @@ class KubectlService:
         print(f"Port-forwarding service {service_name} from target port "
               f"{target_port} to local port {local_port}")
 
+        # pylint: disable=consider-using-with
         process = subprocess.Popen(
             ["kubectl", "--kubeconfig", self.kubeconfig, "port-forward",
              f"service/{service_name}", f"{local_port}:{target_port}", "-n", namespace],
