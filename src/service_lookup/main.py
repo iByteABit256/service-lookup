@@ -6,7 +6,6 @@ from pathlib import Path
 import keyboard
 from .uri_updater import update_directory
 from .lookup_cluster import discover_services_and_port_forward, load_service_mappings
-from .kubeconfig_setup import get_kubeconfigs
 from .clean_processes import clean_ports
 
 def wait_for_user_command():
