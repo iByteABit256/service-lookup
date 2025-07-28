@@ -12,6 +12,7 @@ This abstraction allows:
 """
 
 import subprocess
+import threading
 import json
 
 class KubectlService:
@@ -82,13 +83,36 @@ class KubectlService:
             service_name (str): The name of the Kubernetes service to forward.
             local_port (int): The local port to forward to.
             target_port (int): The target port of the Kubernetes service.
-        """
-        print(f"Port-forwarding service {service_name} from target port \
-{target_port} to local port {local_port}")
 
-        # pylint: disable=consider-using-with
-        subprocess.Popen(
+        Returns:
+            process: Port forwarded process.
+        """
+        print(f"Port-forwarding service {service_name} from target port "
+              f"{target_port} to local port {local_port}")
+
+        process = subprocess.Popen(
             ["kubectl", "--kubeconfig", self.kubeconfig, "port-forward",
              f"service/{service_name}", f"{local_port}:{target_port}", "-n", namespace],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1
         )
+
+        # Wait until "Forwarding from" is shown in output
+        def wait_for_ready():
+            for line in process.stdout:
+                print(f"[kubectl:{service_name}] {line.strip()}")
+                if "Forwarding from" in line:
+                    break
+
+        wait_thread = threading.Thread(target=wait_for_ready)
+        wait_thread.start()
+        wait_thread.join(timeout=10)
+
+        if wait_thread.is_alive():
+            print(f"[!] Timeout: Port forward for {service_name} may not have started properly.")
+        else:
+            print(f"[✓] Port forward for {service_name} is ready.")
+
+        return process
