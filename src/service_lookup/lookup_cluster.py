@@ -80,7 +80,7 @@ def port_forward_services(service_filter, service_mappings, services, namespace,
         else:
             print(f"No mapping found or service '{local_name}' not found in the namespace.")
 
-    print()
+        print()
     return replacements
 
 

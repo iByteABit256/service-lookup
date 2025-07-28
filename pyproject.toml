@@ -1,6 +1,6 @@
 [project]
 name = "service-lookup"
-version = "0.2.6"
+version = "0.2.7"
 description = "Update host:port in YAML service URLs by service name and Kubernetes cluster"
 authors = [
   { name="Pavlos Smith", email="paulsmith4561@proton.me" },

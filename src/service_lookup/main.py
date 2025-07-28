@@ -1,11 +1,11 @@
 """Driver for service-lookup utility"""
 
 import argparse
-import time
 from pathlib import Path
 import keyboard
 from .uri_updater import update_directory
 from .lookup_cluster import discover_services_and_port_forward, load_service_mappings
+from .kubeconfig_setup import get_kubeconfigs
 from .clean_processes import clean_ports
 
 def wait_for_user_command():
@@ -45,7 +45,8 @@ Default value is '*' which means every service in the mapping file", default="*"
             service_filter = args.services.split(',')
 
         replacements = discover_services_and_port_forward(
-            args.namespace, service_filter, service_mappings, args.kubeconfig
+            args.namespace, service_filter, service_mappings,
+            get_kubeconfigs() if args.use_lens else None
         )
     else:
         print("Error: You must either provide a Kubernetes cluster namespace \
@@ -62,7 +63,6 @@ and selected services, or a service=host:port map.")
     used_services = update_directory(root_path, replacements, exclude_paths)
     unused_services = set(replacements.keys()) - used_services
 
-    time.sleep(1) # Waits for the port forwarded service to start before killing it
     print(f"The following port forwarded services were not used, \
 they are going to be cleaned:\n{unused_services}\n")
     clean_ports([replacements[unused_service] for unused_service in unused_services])
