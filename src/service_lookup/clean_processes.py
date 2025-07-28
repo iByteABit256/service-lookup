@@ -37,10 +37,17 @@ def kill_process(pid):
 
 def clean_ports(ports):
     """Clean processes associated with specified ports."""
+
+    # Remove 'localhost:' part
+    ports = [port.split(':')[1] for port in ports]
+
+    print(f"Cleaning ports: {ports}\n")
+
     pids = get_pids_for_ports(ports)
     if not pids:
-        print("No processes found for the specified ports.")
+        print("No processes found for the specified ports.\n")
         return
 
     for pid in pids:
         kill_process(pid)
+    print()

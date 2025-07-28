@@ -1,11 +1,11 @@
 """Driver for service-lookup utility"""
 
 import argparse
+import time
 from pathlib import Path
 import keyboard
 from .uri_updater import update_directory
 from .lookup_cluster import discover_services_and_port_forward, load_service_mappings
-from .kubeconfig_setup import get_kubeconfigs
 from .clean_processes import clean_ports
 
 def wait_for_user_command():
@@ -33,8 +33,6 @@ Default value is '*' which means every service in the mapping file", default="*"
         help="Path to JSON file with service_name -> kubernetes_service_name mappings")
     args = parser.parse_args()
 
-    forwarded_ports = []
-
     if args.map:
         replacements = dict(pair.split('=') for pair in args.map.split(','))
     elif args.services and args.namespace:
@@ -46,9 +44,8 @@ Default value is '*' which means every service in the mapping file", default="*"
         else:
             service_filter = args.services.split(',')
 
-        replacements, forwarded_ports = discover_services_and_port_forward(
-            args.namespace, service_filter, service_mappings,
-            get_kubeconfigs() if args.use_lens else None
+        replacements = discover_services_and_port_forward(
+            args.namespace, service_filter, service_mappings, args.kubeconfig
         )
     else:
         print("Error: You must either provide a Kubernetes cluster namespace \
@@ -62,11 +59,18 @@ and selected services, or a service=host:port map.")
     root_path = Path(args.root)
     exclude_paths = args.exclude.split(',') if args.exclude else []
 
-    update_directory(root_path, replacements, exclude_paths)
+    used_services = update_directory(root_path, replacements, exclude_paths)
+    unused_services = set(replacements.keys()) - used_services
+
+    time.sleep(1) # Waits for the port forwarded service to start before killing it
+    print(f"The following port forwarded services were not used, \
+they are going to be cleaned:\n{unused_services}\n")
+    clean_ports([replacements[unused_service] for unused_service in unused_services])
 
     wait_for_user_command()
 
-    clean_ports(forwarded_ports)
+    print(f"Exiting and cleaning port forwarded services:\n{used_services}\n")
+    clean_ports([replacements[used_service] for used_service in used_services])
 
 if __name__ == "__main__":
     main()

@@ -16,10 +16,10 @@ def update_yaml_urls_by_key(file_path, replacements):
     with open(file_path, 'r', encoding="utf-8") as f:
         data = yaml.load(f)
 
-    if not isinstance(data, dict):
-        return
+    updated = set()
 
-    updated = False
+    if not isinstance(data, dict):
+        return updated
 
     def recurse_dict(d):
         nonlocal updated
@@ -28,6 +28,7 @@ def update_yaml_urls_by_key(file_path, replacements):
             return
 
         for key, value in d.items():
+            # Service name is a parent property
             if isinstance(value, dict):
                 for service, new_host_port in replacements.items():
                     if key == service and "url" in value and isinstance(value["url"], str):
@@ -35,26 +36,41 @@ def update_yaml_urls_by_key(file_path, replacements):
                         new_url = replace_host_port(old_url, new_host_port)
                         if old_url != new_url:
                             value["url"] = new_url
-                            updated = True
+                            updated.add(service)
+
+            # Service name is a leaf property
+            elif isinstance(value, str):
+                for service, new_host_port in replacements.items():
+                    if key == service:
+                        old_url = value
+                        new_url = replace_host_port(old_url, new_host_port)
+                        if old_url != new_url:
+                            d[key] = new_url
+                            updated.add(service)
             recurse_dict(value)
 
     recurse_dict(data)
 
-    if updated:
+    if len(updated) > 0:
         with open(file_path, 'w', encoding="utf-8") as f:
             yaml.dump(data, f)
         print(f"✅ Updated: {file_path}")
+
+    return updated
 
 def update_directory(root_path: Path, replacements: dict[str, str], exclude_paths: list[str]):
     """Updates URI properties in YAML files under the root path"""
 
     exclude_paths = [Path(exclude).resolve() for exclude in exclude_paths]
+    yaml_files = list(root_path.rglob("*.yml")) + list(root_path.rglob("*.yaml"))
+    used_services = set()
 
-    for file in root_path.rglob("*.yml"):
+    for file in yaml_files:
         if any(file.resolve().is_relative_to(exclude) for exclude in exclude_paths):
             print(f"❌ Skipped: {file} (excluded)")
             continue
 
-        if update_yaml_urls_by_key(file, replacements):
-            print(f"✅ Updated: {file}")
+        used_services = used_services.union(update_yaml_urls_by_key(file, replacements))
+
     print()
+    return used_services
