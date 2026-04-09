@@ -1,19 +1,14 @@
-
 """
 kubectl_service.py
 
 Provides a KubectlService class that wraps kubectl commands\
 for interacting with Kubernetes clusters.
-
-This abstraction allows:
-- Switching Kubernetes contexts
-- Retrieving services from a namespace
-- Port-forwarding services to localhost
 """
 
+import json
 import subprocess
 import threading
-import json
+
 
 class KubectlService:
     """
@@ -22,6 +17,7 @@ class KubectlService:
     This service provides higher-level methods to interact with Kubernetes clusters, such as:
     - Switching contexts
     - Retrieving services in a namespace
+    - Retrieving namespaces by context
     - Port-forwarding services to localhost
     """
 
@@ -58,7 +54,7 @@ class KubectlService:
         Args:
             context (str): The name of the Kubernetes context to switch to.
         """
-        print(f"Switching context to '{context}' using kubeconfig '{self.kubeconfig}'\n")
+        print(f"Switching context to '{context}' using kubeconfig '{self.kubeconfig}'")
         self.run_kubectl(["config", "use-context", context])
 
     def get_services(self, namespace):
@@ -73,6 +69,24 @@ class KubectlService:
         """
         result = self.run_kubectl(["get", "services", "-n", namespace, "-o", "json"])
         return json.loads(result.stdout)
+
+    def get_namespaces(self, context, request_timeout="10s"):
+        """
+        Retrieves all namespaces from given context.
+
+        Args:
+           context (str): The name of the Kubernetes context to switch to.
+
+        Returns:
+           dict: A dictionary representing the JSON output of the namespaces list.
+        """
+        try:
+            result = self.run_kubectl(["get", "namespace", "--context", context, "-o", "json",
+                                      "--request-timeout", request_timeout])
+            return json.loads(result.stdout)
+        except subprocess.CalledProcessError:
+            print(f"Error getting namespaces for context '{context}', returning none")
+            return None
 
     def port_forward(self, namespace, service_name, local_port, target_port):
         """

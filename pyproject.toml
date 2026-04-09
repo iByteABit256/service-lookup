@@ -1,6 +1,6 @@
 [project]
 name = "service-lookup"
-version = "0.2.7"
+version = "0.2.8"
 description = "Update host:port in YAML service URLs by service name and Kubernetes cluster"
 authors = [
   { name="Pavlos Smith", email="paulsmith4561@proton.me" },
@@ -19,3 +19,24 @@ repository = "https://pypi.org/project/service-lookup/"
 
 [project.scripts]
 service-lookup = "service_lookup.main:main"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+  # pycodestyle
+  "E",
+  # Pyflakes
+  "F",
+  # pyupgrade
+  "UP",
+  # flake8-bugbear
+  "B",
+  # flake8-simplify
+  "SIM",
+  # isort
+  "I",
+  # warnings
+  "W"
+]
