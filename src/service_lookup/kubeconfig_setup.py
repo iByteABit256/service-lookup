@@ -62,6 +62,8 @@ def get_lens_kubeconfig_for_namespace(namespace, request_timeout, cluster=None):
     return kubeconfig_files[0]
 
 def namespace_matches(namespace, actual_namespace):
-    # Also matches namespaces with an added suffix separated with . or -
-    return namespace in actual_namespace.split('.') or namespace in actual_namespace.split('-')
+    """Matches input namespace with the ones found from the cluster.
 
+    It also matches namespaces with an added suffix separated with . or -
+    """
+    return namespace in actual_namespace.split('.') or namespace in actual_namespace.split('-')

@@ -53,7 +53,8 @@ Default value is '*' which means every service in the mapping file", default="*"
         else:
             service_filter = args.services.split(',')
 
-        kubeconfig = get_kubeconfig(args.use_lens, args.kubeconfig, args.namespace, args.request_timeout, args.cluster)
+        kubeconfig = get_kubeconfig(args.use_lens, args.kubeconfig, args.namespace,
+                                    args.request_timeout, args.cluster)
 
         replacements = discover_services_and_port_forward(
             args.namespace, service_filter, service_mappings, kubeconfig)
@@ -78,6 +79,8 @@ they are going to be cleaned:\n{unused_services}\n")
     clean_ports([replacements[used_service] for used_service in used_services])
 
 def get_kubeconfig(use_lens, kubeconfig, namespace, request_timeout, cluster):
+    """Gets the appropriate kubeconfig depending on the options given."""
+
     if use_lens:
         return get_lens_kubeconfig_for_namespace(namespace, request_timeout, cluster)
     if kubeconfig is None:
