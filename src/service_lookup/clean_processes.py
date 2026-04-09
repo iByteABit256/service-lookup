@@ -1,8 +1,9 @@
 """Kills processes based on ther listening port"""
 
-import subprocess
 import os
 import signal
+import subprocess
+
 
 def get_pids_for_ports(ports):
     """Retrieve PIDs for processes listening on specified ports."""

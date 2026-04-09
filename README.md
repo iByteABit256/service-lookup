@@ -114,7 +114,10 @@ service-lookup --root /path/to/root --map service1=localhost:8080,service2=local
 - `-n`, `--namespace`: Kubernetes namespace to discover services.
 - `-s`, `--services`: Comma-separated list of service names to port forward. Default value is '*' which means every service in the mapping file.
 - `-f`, `--mapping-file`: Path to JSON file with service_name -> kubernetes_service_name mappings.
+- `-k`, `--kubeconfig`: Specify kubeconfig file path.
+- `-c`, `--cluster`: Specify Kubernetes cluster, otherwise first matching namespace from any cluster will be used when using the `--use-lens` option.
 - `-l`, `--use-lens`: Use kubeconfigs from Lens.
+- `-t`, `--request-timeout`: The length of time to wait before giving up on a single server request, default is 10s.
 
 ## Configuration
 

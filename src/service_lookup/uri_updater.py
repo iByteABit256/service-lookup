@@ -2,6 +2,7 @@
 
 import re
 from pathlib import Path
+
 from ruamel.yaml import YAML
 
 yaml = YAML()
@@ -13,7 +14,7 @@ def replace_host_port(url, new_host_port):
 
 def update_yaml_urls_by_key(file_path, replacements):
     """Update URI properties by service name"""
-    with open(file_path, 'r', encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         data = yaml.load(f)
 
     updated = set()
