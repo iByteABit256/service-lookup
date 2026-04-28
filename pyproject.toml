@@ -11,6 +11,7 @@ license = "GPL-3.0"
 dependencies = [
     "keyboard>=0.13.5",
     "ruamel-yaml>=0.18.14",
+    "toml-rs>=0.3.12",
 ]
 
 [project.urls]

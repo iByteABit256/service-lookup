@@ -6,6 +6,7 @@ from pathlib import Path
 import keyboard
 
 from .clean_processes import clean_ports
+from .config import get_configuration
 from .kubeconfig_setup import get_lens_kubeconfig_for_namespace
 from .lookup_cluster import discover_services_and_port_forward, load_service_mappings
 from .uri_updater import update_directory
@@ -42,6 +43,8 @@ Default value is '*' which means every service in the mapping file", default="*"
         help="Path to JSON file with service_name -> kubernetes_service_name mappings")
     args = parser.parse_args()
 
+    configuration = get_configuration()
+
     if args.map:
         replacements = dict(pair.split('=') for pair in args.map.split(','))
     elif args.services and args.namespace:
@@ -54,7 +57,7 @@ Default value is '*' which means every service in the mapping file", default="*"
             service_filter = args.services.split(',')
 
         kubeconfig = get_kubeconfig(args.use_lens, args.kubeconfig, args.namespace,
-                                    args.request_timeout, args.cluster)
+                                    args.request_timeout, args.cluster, configuration)
 
         replacements = discover_services_and_port_forward(
             args.namespace, service_filter, service_mappings, kubeconfig)
@@ -78,10 +81,10 @@ they are going to be cleaned:\n{unused_services}\n")
     print(f"Exiting and cleaning port forwarded services:\n{used_services}\n")
     clean_ports([replacements[used_service] for used_service in used_services])
 
-def get_kubeconfig(use_lens, kubeconfig, namespace, request_timeout, cluster):
+def get_kubeconfig(use_lens, kubeconfig, namespace, request_timeout, cluster, configuration):
     """Gets the appropriate kubeconfig depending on the options given."""
 
-    if use_lens:
+    if use_lens or configuration.use_lens_by_default:
         return get_lens_kubeconfig_for_namespace(namespace, request_timeout, cluster)
     if kubeconfig is None:
         return Path.home() / ".kube" / "config"
