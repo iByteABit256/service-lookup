@@ -9,7 +9,7 @@ from .clean_processes import clean_ports
 from .config import get_configuration
 from .kubeconfig_setup import get_lens_kubeconfig_for_namespace
 from .lookup_cluster import discover_services_and_port_forward, load_service_mappings
-from .uri_updater import update_directory
+from .uri_updater import restore_files, update_directory
 
 
 def wait_for_user_command():
@@ -28,6 +28,8 @@ def main():
         help="Search kubeconfigs from Lens")
     parser.add_argument('-r', '--root', help="Root directory to search YAML files, \
 the default is the current directory", default=".")
+    parser.add_argument('-R', '--restore', help="Restores updated files after cleanup, \
+false by default", action='store_true')
     parser.add_argument('-e', '--exclude', help="Excluded paths in root directory")
     parser.add_argument('-m', '--map', help="Comma-separated service=host:port pairs")
     parser.add_argument('-c', '--cluster', help="Specify Kubernetes cluster, \
@@ -69,7 +71,8 @@ and selected services, or a service=host:port map.")
     root_path = Path(args.root)
     exclude_paths = args.exclude.split(',') if args.exclude else []
 
-    used_services = update_directory(root_path, replacements, exclude_paths)
+    should_restore_files = configuration.revert_after_cleanup or args.restore
+    used_services, cached_files = update_directory(root_path, replacements, exclude_paths, should_restore_files)
     unused_services = set(replacements.keys()) - used_services
 
     print(f"The following port forwarded services were not used, \
@@ -80,6 +83,9 @@ they are going to be cleaned:\n{unused_services}\n")
 
     print(f"Exiting and cleaning port forwarded services:\n{used_services}\n")
     clean_ports([replacements[used_service] for used_service in used_services])
+
+    if should_restore_files:
+        restore_files(cached_files)
 
 def get_kubeconfig(use_lens, kubeconfig, namespace, request_timeout, cluster, configuration):
     """Gets the appropriate kubeconfig depending on the options given."""

@@ -54,7 +54,7 @@ class KubectlService:
         Args:
             context (str): The name of the Kubernetes context to switch to.
         """
-        print(f"Switching context to '{context}' using kubeconfig '{self.kubeconfig}'")
+        print(f"Switching context to '{context}' using kubeconfig '{self.kubeconfig}'\n")
         self.run_kubectl(["config", "use-context", context])
 
     def get_services(self, namespace):
