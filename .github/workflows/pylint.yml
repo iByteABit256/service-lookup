@@ -1,4 +1,4 @@
-name: Pylint
+name: Ruff
 
 on: [push]
 
@@ -14,8 +14,6 @@ jobs:
       with:
         python-version-file: ".python-version"
     - name: Install dependencies
-      run: |
-        uv sync
-        uv tool install pylint
-    - name: Analysing the code with pylint
-      run: uvx pylint --disable=E0401 $(git ls-files '*.py')
+      run: uv sync
+    - name: Analysing the code with ruff
+      run: uvx ruff check $(git ls-files '*.py')
