@@ -44,20 +44,32 @@ def should_update_url(key, value, service):
     # Leaf property case
     return isinstance(value, str)
 
+def update_dict_url(value_dict, new_host_port):
+    """Update URL in a dictionary. Returns True if updated, False otherwise."""
+    if not isinstance(value_dict, dict) or "url" not in value_dict:
+        return False
+    old_url = value_dict["url"]
+    new_url = replace_host_port(old_url, new_host_port)
+    if old_url != new_url:
+        value_dict["url"] = new_url
+        return True
+    return False
+
+def update_string_url(value_str, new_host_port):
+    """Update URL string. Returns new string or original if unchanged."""
+    if not isinstance(value_str, str):
+        return None
+    old_url = value_str
+    new_url = replace_host_port(old_url, new_host_port)
+    return new_url if old_url != new_url else value_str
+
 def apply_url_update(value, new_host_port):
-    """Apply the URL update to either a dict or string value"""
+    """Apply the URL update to either a dict or string value."""
     if isinstance(value, dict):
-        old_url = value["url"]
-        new_url = replace_host_port(old_url, new_host_port)
-        if old_url != new_url:
-            value["url"] = new_url
-            return True
-    elif isinstance(value, str):
-        old_url = value
-        new_url = replace_host_port(old_url, new_host_port)
-        if old_url != new_url:
-            return new_url
-    return value if isinstance(value, str) else False
+        return update_dict_url(value, new_host_port)
+    if isinstance(value, str):
+        return update_string_url(value, new_host_port)
+    return False
 
 def recurse_dict(d, replacements, updated):
     """Recursively traverse dictionary and update URLs"""
