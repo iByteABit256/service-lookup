@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: service-a-adapter
+
+service-a:
+  url: http://localhost:8000/api/v1
+  timeout: 5000
+
+some-other-config:
+  value: should-not-be-touched

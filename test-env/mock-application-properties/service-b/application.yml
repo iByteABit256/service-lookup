@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: service-b-adapter
+
+service-b:
+  url: http://localhost:9000/api/v2
+  timeout: 3000
+
+some-other-config:
+  value: should-not-be-touched
