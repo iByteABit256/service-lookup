@@ -55,7 +55,7 @@ jobs:
           uv run -m src.service_lookup.main \
             --root test-env/mock-application-properties \
             --namespace dev \
-            --mapping-file test-env/service-mappings.json
+            --mapping-file test-env/service_mappings.json
 
       - name: Verify URIs were updated
         run: |
