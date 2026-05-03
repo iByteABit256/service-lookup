@@ -22,12 +22,13 @@ def load_service_mappings(mapping_file):
     try:
         with open(mapping_file, encoding="utf-8") as f:
             return json.load(f)
-    except FileNotFoundError:
-        print(f"Mapping file {mapping_file} not found.")
-        return {}
-    except json.JSONDecodeError:
-        print("Error decoding JSON mapping file.")
-        return {}
+    except FileNotFoundError as e:
+        raise FileNotFoundError(
+            f"Mapping file '{mapping_file}' not found. "
+            f"Check the --mapping-file argument or create the file."
+        ) from e
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Mapping file '{mapping_file}' contains invalid JSON.") from e
 
 def get_context_from_kubeconfig(kubecfg):
     """Extract the context name from a kubeconfig file."""
