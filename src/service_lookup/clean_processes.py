@@ -1,40 +1,30 @@
 """Kills processes based on ther listening port"""
 
-import os
 import signal
-import subprocess
+
+import psutil
 
 
 def get_pids_for_ports(ports):
     """Retrieve PIDs for processes listening on specified ports."""
-    try:
-        result = subprocess.run(
-            ["netstat", "-ano"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        # Find lines that mention the specified ports
-        pids = set()
-        for line in result.stdout.splitlines():
-            if any(f":{port}" in line for port in ports):
-                # Extract the PID, which is usually the last column
-                parts = line.split()
-                pid = parts[-1]
-                pids.add(pid)
+    ports = {int(p) for p in ports}
+    pids = set()
 
-        return pids
-    except subprocess.CalledProcessError as e:
-        print(f"Error retrieving netstat information: {e.stderr}")
-        return set()
+    for conn in psutil.net_connections(kind="tcp"):
+        if conn.status == psutil.CONN_LISTEN and conn.laddr.port in ports and conn.pid is not None:
+            pids.add(conn.pid)
+
+    return pids
 
 def kill_process(pid):
     """Attempt to kill a process by PID."""
     try:
-        os.kill(int(pid), signal.SIGTERM)
+        psutil.Process(pid).send_signal(signal.SIGTERM)
         print(f"✅ Process {pid} terminated.")
-    except OSError as e:
-        print(f"❌ Failed to terminate process {pid}: {e}")
+    except psutil.NoSuchProcess:
+        print(f"⚠️ Process {pid} no longer exists.")
+    except psutil.AccessDenied:
+        print(f"❌ Access denied when trying to terminate process {pid}.")
 
 def clean_ports(ports):
     """Clean processes associated with specified ports."""
