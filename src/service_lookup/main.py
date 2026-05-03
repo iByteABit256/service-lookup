@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 
-import keyboard
+from pynput import keyboard
 
 from .clean_processes import clean_ports
 from .config import get_configuration
@@ -14,10 +14,10 @@ from .uri_updater import restore_files, update_directory
 
 def wait_for_user_command():
     """Wait for a specific user command to trigger cleanup."""
-
     print("Press 'ctrl+q' to clean ports and exit.")
-    keyboard.wait('ctrl+q')
-    print("Cleaning up ports and exiting...")
+    hotkeys = keyboard.GlobalHotKeys({'<ctrl>+q': lambda: hotkeys.stop()})
+    hotkeys.start()
+    hotkeys.join()
 
 def main():
     """Driver for service-lookup utility"""
