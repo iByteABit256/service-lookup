@@ -1,0 +1,95 @@
+name: Integration Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install k3d
+        run: curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Create k3d cluster
+        run: |
+          k3d cluster delete service-lookup-test || true
+          k3d cluster create --config test-env/k3d-config.yaml
+
+      - name: Apply manifests
+        run: kubectl apply -f test-env/manifests/
+
+      - name: Wait for pods to be ready
+        run: kubectl wait --for=condition=ready pod --all -n dev --timeout=120s
+
+      - name: Capture original URIs
+        run: |
+          echo "SERVICE_A_BEFORE=$(grep 'url:' test-env/mock-application-properties/service-a/application.yml)"  >> $GITHUB_ENV
+          echo "SERVICE_B_BEFORE=$(grep 'url:' test-env/mock-application-properties/service-b/application.yml)" >> $GITHUB_ENV
+
+      - name: Run service-lookup
+        run: |
+          uv run -m src.service_lookup.main \
+            --root test-env/mock-application-properties \
+            --namespace dev \
+            --mapping-file test-env/service-mappings.json
+
+      - name: Verify URIs were updated
+        run: |
+          SERVICE_A_AFTER=$(grep 'url:' test-env/mock-application-properties/service-a/application.yml)
+          SERVICE_B_AFTER=$(grep 'url:' test-env/mock-application-properties/service-b/application.yml)
+
+          echo "Service A before: $SERVICE_A_BEFORE"
+          echo "Service A after:  $SERVICE_A_AFTER"
+          echo "Service B before: $SERVICE_B_BEFORE"
+          echo "Service B after:  $SERVICE_B_AFTER"
+
+          if [ "$SERVICE_A_BEFORE" = "$SERVICE_A_AFTER" ]; then
+            echo "FAIL: service-a URI was not updated"
+            exit 1
+          fi
+
+          if [ "$SERVICE_B_BEFORE" = "$SERVICE_B_AFTER" ]; then
+            echo "FAIL: service-b URI was not updated"
+            exit 1
+          fi
+
+          # Verify the updated URIs point to localhost with a valid port
+          if ! echo "$SERVICE_A_AFTER" | grep -qP 'url:\s+http://localhost:\d+'; then
+            echo "FAIL: service-a URI does not match expected pattern http://localhost:<port>"
+            exit 1
+          fi
+
+          if ! echo "$SERVICE_B_AFTER" | grep -qP 'url:\s+http://localhost:\d+'; then
+            echo "FAIL: service-b URI does not match expected pattern http://localhost:<port>"
+            exit 1
+          fi
+
+          echo "OK: all URIs updated correctly"
+
+      - name: Delete k3d cluster
+        if: always()
+        run: k3d cluster delete service-lookup-test

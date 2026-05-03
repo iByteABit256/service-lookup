@@ -1,9 +1,8 @@
 """Driver for service-lookup utility"""
 
 import argparse
+import os
 from pathlib import Path
-
-from pynput import keyboard
 
 from .clean_processes import clean_ports
 from .config import get_configuration
@@ -14,6 +13,11 @@ from .uri_updater import restore_files, update_directory
 
 def wait_for_user_command():
     """Wait for a specific user command to trigger cleanup."""
+    if os.getenv("CI"):
+        print("CI environment detected, skipping wait for user command.")
+        return
+
+    from pynput import keyboard
     print("Press 'ctrl+q' to clean ports and exit.")
     hotkeys = keyboard.GlobalHotKeys({'<ctrl>+q': lambda: hotkeys.stop()})
     hotkeys.start()
