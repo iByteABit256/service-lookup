@@ -1,0 +1,4 @@
+{
+    "service-a": "service-a-k8s",
+    "service-b": "service-b-k8s"
+}

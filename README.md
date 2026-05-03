@@ -140,7 +140,11 @@ Use the `--exclude` option to specify paths in the root directory that should be
 
 ## Contributing
 
-All contributions are welcome! To contribute:
+All contributions are welcome! Before making changes, check out the
+[test environment guide](test-env/README.md) to learn how to run the tool
+locally.
+
+To contribute:
 
 1. Fork the repository on GitHub.
 2. Create a new branch for your feature or fix.
