@@ -17,9 +17,9 @@ A Python-based tool for updating YAML configuration files with dynamic host and 
 
 - **Dynamic Service Discovery**: Automatically discover services running in a Kubernetes cluster and update your YAML configuration files accordingly.
 - **Port Forwarding**: Port forward Kubernetes services to your local machine for development and testing purposes.
-- **Custom Mappings**: Use custom mappings to handle services with different names locally and in Kubernetes.
-- **Exclusion of Files**: Specify paths to exclude from YAML updates.
 - **Setup from Lens Utility**: Configure your environment with a simple setup command if using [Lens](https://k8slens.dev/).
+- **Configuration**: Persistent configuration with TOML format.
+- **Cross-Platform**: Works on Linux and Windows.
 
 ## Example
 ```bash
@@ -28,8 +28,8 @@ service-lookup --root . --namespace dev --services service1,service2 --use-lens 
 Port-forwarding service service1 from target port 8080 to local port 24836
 Port-forwarding service service2 from target port 8080 to local port 24837
 
-✅ Updated: .\service1\service1-adapter\src\main\resources\application-service1-adapter.yml
-✅ Updated: .\service2\service2-adapter\src\main\resources\application-service2-adapter.yml
+✅ Updated: service1/service1-adapter/src/main/resources/application-service1-adapter.yml
+✅ Updated: service2/service2-adapter/src/main/resources/application-service2-adapter.yml
 
 Press 'ctrl+q' to clean ports and exit.
 
@@ -53,11 +53,13 @@ Press 'ctrl+q' to clean ports and exit.
 pip install service-lookup
 ```
 
-### Add to PATH
+### PATH Configuration
 
-In order to be able to call `service-lookup` directly from any directory, you must add the Python scripts directory to your PATH environment variable.
+To call `service-lookup` directly from any directory, ensure the Python scripts directory is in your system's PATH environment variable.
 
-The default location for Windows is `<User_Directory>/AppData/Local/Programs/Python/<Python_Version>/Scripts`.
+The typical locations are:
+- **Linux/macOS**: `~/.local/bin/` or the `bin` directory of your Python installation
+- **Windows**: The `Scripts` directory within your Python installation
 
 ## Installation From Repository
 
@@ -106,6 +108,14 @@ If you have predefined mappings:
 service-lookup --root /path/to/root --map service1=localhost:8080,service2=localhost:8081 --exclude path/to/exclude,another/path/to/exclude
 ```
 
+### Restore Files After Cleanup
+
+To automatically restore original YAML files when cleaning up port-forwarded services:
+
+```bash
+service-lookup --restore --namespace dev --services service1,service2
+```
+
 ### Options
 
 - `-r`, `--root`: Root directory to search YAML files.
@@ -118,8 +128,26 @@ service-lookup --root /path/to/root --map service1=localhost:8080,service2=local
 - `-c`, `--cluster`: Specify Kubernetes cluster, otherwise first matching namespace from any cluster will be used when using the `--use-lens` option.
 - `-l`, `--use-lens`: Use kubeconfigs from Lens.
 - `-t`, `--request-timeout`: The length of time to wait before giving up on a single server request, default is 10s.
+- `-R`, `--restore`: Restores updated files after cleanup (default: false).
+- `--invalidate-cache`: Invalidates the namespace cache.
 
 ## Configuration
+
+### Configuration File
+
+Service-lookup supports a TOML configuration file located at:
+
+- **Linux/macOS**: `~/.config/service-lookup/config.toml`
+- **Windows**: `%USERPROFILE%\.config\service-lookup\config.toml`
+
+Example configuration:
+
+```toml
+# Default configuration for service-lookup
+use_lens_by_default = false      # Use Lens kubeconfigs automatically
+revert_after_cleanup = false     # Restore original files when cleaning up
+cache_invalidation_seconds = 864000  # Namespace cache duration (default: 10 days)
+```
 
 ### Service Mappings
 
@@ -137,6 +165,17 @@ Running without the `--services` option searches for every service in the mappin
 ### Exclusion Paths
 
 Use the `--exclude` option to specify paths in the root directory that should be excluded from updates.
+
+### Namespace Caching
+
+The tool caches Kubernetes namespace information to improve performance. The cache is stored at:
+
+- **Linux/macOS**: `~/.cache/service-lookup/namespaces.yaml`
+- **Windows**: `%USERPROFILE%\.cache\service-lookup\namespaces.yaml`
+
+Cache can be invalidated using:
+- `--invalidate-cache` command-line option
+- Waiting for the `cache_invalidation_seconds` period to expire (configured in config.toml)
 
 ## Contributing
 
