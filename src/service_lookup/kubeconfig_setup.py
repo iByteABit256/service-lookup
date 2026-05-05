@@ -1,6 +1,8 @@
 """ Finds Lens kubeconfig by namespace and cluster """
 
+import json
 import os
+import time
 from pathlib import Path
 
 from ruamel.yaml import YAML
@@ -10,7 +12,12 @@ from .kubectl_service import KubectlService
 yaml = YAML()
 yaml.preserve_quotes = True
 
-def get_lens_kubeconfig_for_namespace(namespace, request_timeout, cluster=None):
+def update_namespace_cache(cache_file, data):
+    with open(cache_file, 'w') as namespace_json:
+        json.dump(data, namespace_json)
+
+def get_lens_kubeconfig_for_namespace(namespace, request_timeout, cache_invalidation_seconds,
+                                      invalidate_cache, cluster=None):
     """Find the Lens kubeconfig file for a given namespace.
 
     A specific cluster name can be given, otherwise the first match will be returned.
@@ -28,6 +35,19 @@ def get_lens_kubeconfig_for_namespace(namespace, request_timeout, cluster=None):
         print("No kubeconfig files found in the Lens directory.")
         return None
 
+    cache_file = Path.home() / ".cache" / "service-lookup" / "namespaces.yaml"
+    cache_updated = False
+    if not cache_file.exists():
+        cache_file.parent.mkdir(exist_ok=True, parents=True)
+        update_namespace_cache(cache_file, dict())
+
+    with open(cache_file) as namespace_json:
+        data = json.load(namespace_json)
+
+    cache_age = os.stat(cache_file).st_mtime
+    if invalidate_cache or cache_age < time.time() - cache_invalidation_seconds:
+        data = dict()
+
     for kubeconfig_file in kubeconfig_files:
         try:
             with open(kubeconfig_file, encoding="utf-8") as f:
@@ -44,7 +64,12 @@ def get_lens_kubeconfig_for_namespace(namespace, request_timeout, cluster=None):
                 if cluster is not None and cluster_curr != cluster:
                     continue
 
-                namespaces = kubectl.get_namespaces(context.get('name'), request_timeout)
+                if str(kubeconfig_file) in data:
+                    namespaces = data[str(kubeconfig_file)]
+                else:
+                    namespaces = kubectl.get_namespaces(context.get('name'), request_timeout)
+                    data[str(kubeconfig_file)] = namespaces
+                    cache_updated = True
 
                 if namespaces is None:
                     continue
@@ -53,10 +78,14 @@ def get_lens_kubeconfig_for_namespace(namespace, request_timeout, cluster=None):
                     if namespace_matches(namespace, ns.get('metadata').get('name'))), None)
 
                 if found_namespace is not None:
+                    if cache_updated:
+                        update_namespace_cache(cache_file, data)
                     return str(kubeconfig_file)
         except OSError as e:
             print(f"Error reading {kubeconfig_file}: {e}")
 
+    if cache_updated:
+        update_namespace_cache(cache_file, data)
     print(f"Error: No matching kubeconfig found for namespace '{namespace}'.")
     print(f"Warning: Using '{kubeconfig_files[0]}' as a fallback.")
     return kubeconfig_files[0]

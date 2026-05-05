@@ -9,6 +9,7 @@ import toml_rs
 class ServiceLookupConfiguration:
     use_lens_by_default: bool = False
     revert_after_cleanup: bool = False
+    cache_invalidation_seconds: int = 864000 # default is 10 days
 
 def get_configuration():
     configuration = ServiceLookupConfiguration()
@@ -24,6 +25,9 @@ def get_configuration():
 
                 if "revert_after_cleanup" in config_data:
                     configuration.revert_after_cleanup = config_data["revert_after_cleanup"]
+
+                if "cache_invalidation_seconds" in config_data:
+                    configuration.cache_invalidation_seconds = config_data["cache_invalidation_seconds"]
             except toml_rs.TOMLDecodeError as e:
                 print("Error loading configuration file, check config.toml syntax.")
                 print(e, end="\n\n")

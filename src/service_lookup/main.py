@@ -47,6 +47,7 @@ Default value is '*' which means every service in the mapping file", default="*"
     parser.add_argument('-f', '--mapping-file',
         default='service_mappings.json',
         help="Path to JSON file with service_name -> kubernetes_service_name mappings")
+    parser.add_argument('--invalidate-cache', help="Invalidates namespaces cache", action='store_true')
     args = parser.parse_args()
 
     configuration = get_configuration()
@@ -63,7 +64,7 @@ Default value is '*' which means every service in the mapping file", default="*"
             service_filter = args.services.split(',')
 
         kubeconfig = get_kubeconfig(args.use_lens, args.kubeconfig, args.namespace,
-                                    args.request_timeout, args.cluster, configuration)
+                                    args.request_timeout, args.cluster, args.invalidate_cache, configuration)
 
         replacements = discover_services_and_port_forward(
             args.namespace, service_filter, service_mappings, kubeconfig)
@@ -91,11 +92,13 @@ they are going to be cleaned:\n{unused_services}\n")
     if should_restore_files:
         restore_files(cached_files)
 
-def get_kubeconfig(use_lens, kubeconfig, namespace, request_timeout, cluster, configuration):
+def get_kubeconfig(use_lens, kubeconfig, namespace, request_timeout, cluster, invalidate_cache, configuration):
     """Gets the appropriate kubeconfig depending on the options given."""
 
     if use_lens or configuration.use_lens_by_default:
-        return get_lens_kubeconfig_for_namespace(namespace, request_timeout, cluster)
+        return get_lens_kubeconfig_for_namespace(namespace, request_timeout,
+                                                 configuration.cache_invalidation_seconds,
+                                                 invalidate_cache, cluster)
     if kubeconfig is None:
         return Path.home() / ".kube" / "config"
     return kubeconfig

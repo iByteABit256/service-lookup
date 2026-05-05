@@ -92,7 +92,11 @@ def recurse_dict(d, replacements, updated):
 def update_yaml_urls_by_key(file_path, replacements, restore_files_flag):
     """Update URI properties by service name"""
     with open(file_path, encoding="utf-8") as f:
-        data = yaml.load(f)
+        try:
+            data = yaml.load(f)
+        except Exception as e:
+            print(f"Skipping {file_path}: could not parse YAML ({e})")
+            return (set(), None)
 
     updated = set()
     cached_file_path = None
