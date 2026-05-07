@@ -5,6 +5,7 @@ import os
 import time
 from pathlib import Path
 
+import platformdirs
 from ruamel.yaml import YAML
 
 from .kubectl_service import KubectlService
@@ -35,7 +36,7 @@ def get_lens_kubeconfig_for_namespace(namespace, request_timeout, cache_invalida
         print("No kubeconfig files found in the Lens directory.")
         return None
 
-    cache_file = Path.home() / ".cache" / "service-lookup" / "namespaces.yaml"
+    cache_file = Path(platformdirs.user_cache_dir("service-lookup", ensure_exists=True)) / "namespaces.yaml"
     cache_updated = False
     if not cache_file.exists():
         cache_file.parent.mkdir(exist_ok=True, parents=True)
