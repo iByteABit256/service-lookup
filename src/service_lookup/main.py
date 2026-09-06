@@ -2,6 +2,7 @@
 
 import argparse
 import os
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 from .clean_processes import clean_ports
@@ -27,6 +28,7 @@ def main():
     """Driver for service-lookup utility"""
     parser = argparse.ArgumentParser(description="Update host:port in YAML service \
         URLs by service name and Kubernetes cluster")
+    parser.add_argument('-V', '--version', help="Display installed service-lookup version", action='store_true')
     parser.add_argument('-k', '--kubeconfig', help="Specify kubeconfig file path")
     parser.add_argument('-l', '--use-lens', action='store_true',
         help="Search kubeconfigs from Lens")
@@ -51,6 +53,13 @@ Default value is '*' which means every service in the mapping file", default="*"
     args = parser.parse_args()
 
     configuration = get_configuration()
+
+    if args.version:
+        try:
+            print(version("service-lookup"))
+        except PackageNotFoundError:
+            print("service-lookup is not installed")
+        return
 
     if args.map:
         replacements = dict(pair.split('=') for pair in args.map.split(','))

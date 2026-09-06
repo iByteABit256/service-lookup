@@ -13,7 +13,7 @@
 
 ## Running the tool
 
-    uv run src.service_lookup.main \
+    uv run service-lookup \
       --root ./test-env/mock-application-properties \
       --namespace dev \
       --services service-a,service-b \

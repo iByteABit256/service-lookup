@@ -52,7 +52,7 @@ jobs:
 
       - name: Run service-lookup
         run: |
-          uv run -m src.service_lookup.main \
+          uv run service-lookup \
             --root test-env/mock-application-properties \
             --namespace dev \
             --mapping-file test-env/service_mappings.json
