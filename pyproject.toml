@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "service-lookup"
-version = "0.3.0"
+version = "0.3.1"
 description = "Update host:port in YAML service URLs by service name and Kubernetes cluster"
 authors = [
   { name="Pavlos Smith", email="paulsmith4561@proton.me" },
