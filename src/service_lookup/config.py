@@ -1,4 +1,5 @@
 """Parses configuration file"""
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -10,6 +11,7 @@ class ServiceLookupConfiguration:
     use_lens_by_default: bool = False
     revert_after_cleanup: bool = False
     cache_invalidation_seconds: int = 864000 # default is 10 days
+    default_service_mappings_path: str = str(Path.home() / ".config" / "service-lookup" / "service_mappings.json")
 
 def get_configuration():
     configuration = ServiceLookupConfiguration()
@@ -28,6 +30,10 @@ def get_configuration():
 
                 if "cache_invalidation_seconds" in config_data:
                     configuration.cache_invalidation_seconds = config_data["cache_invalidation_seconds"]
+
+                if "default_service_mappings_path" in config_data:
+                    configuration.default_service_mappings_path = os.path.expanduser(
+                        config_data["default_service_mappings_path"])
             except toml_rs.TOMLDecodeError as e:
                 print("Error loading configuration file, check config.toml syntax.")
                 print(e, end="\n\n")
