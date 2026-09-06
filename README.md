@@ -159,8 +159,9 @@ Use the `--exclude` option to specify paths in the root directory that should be
 
 The tool caches Kubernetes namespace information to improve performance. The cache is stored at:
 
-- **Linux/macOS**: `~/.cache/service-lookup/namespaces.yaml`
-- **Windows**: `%USERPROFILE%\.cache\service-lookup\namespaces.yaml`
+- **Linux**: `~/.cache/service-lookup/namespaces.yaml`
+- **macOS**: `~/Library/Caches/service-lookup/namespaces.yaml`
+- **Windows**: `%LOCALAPPDATA%\service-lookup\Cache\namespaces.yaml`
 
 Cache can be invalidated using:
 - `--invalidate-cache` command-line option
