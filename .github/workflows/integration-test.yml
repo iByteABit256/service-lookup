@@ -42,8 +42,8 @@ jobs:
       - name: Apply manifests
         run: kubectl apply -f test-env/manifests/
 
-      - name: Wait for pods to be ready
-        run: kubectl wait --for=condition=ready pod --all -n dev --timeout=120s
+      - name: Wait for deployments to be ready
+        run: kubectl wait --for=condition=available deployment --all -n dev --timeout=120s
 
       - name: Capture original URIs
         run: |
