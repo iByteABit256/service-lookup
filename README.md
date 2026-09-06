@@ -112,7 +112,7 @@ service-lookup --restore --namespace dev --services service1,service2
 - `-m`, `--map`: Comma-separated service=host:port pairs.
 - `-n`, `--namespace`: Kubernetes namespace to discover services.
 - `-s`, `--services`: Comma-separated list of service names to port forward. Default value is '*' which means every service in the mapping file.
-- `-f`, `--mapping-file`: Path to JSON file with service_name -> kubernetes_service_name mappings.
+- `-f`, `--mapping-file`: Path to JSON file with service_name -> kubernetes_service_name mappings. Defaults to the `default_service_mappings_path` configuration property (`~/.config/service-lookup/service_mappings.json`).
 - `-k`, `--kubeconfig`: Specify kubeconfig file path.
 - `-c`, `--cluster`: Specify Kubernetes cluster, otherwise first matching namespace from any cluster will be used when using the `--use-lens` option.
 - `-l`, `--use-lens`: Use kubeconfigs from Lens.
@@ -136,6 +136,7 @@ Example configuration:
 use_lens_by_default = false      # Use Lens kubeconfigs automatically
 revert_after_cleanup = false     # Restore original files when cleaning up
 cache_invalidation_seconds = 864000  # Namespace cache duration (default: 10 days)
+default_service_mappings_path = "~/.config/service-lookup/service_mappings.json"  # Path used when -f is not given
 ```
 
 ### Service Mappings

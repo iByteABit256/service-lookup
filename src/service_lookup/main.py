@@ -47,8 +47,9 @@ giving up on a single server request, default is 10s", default="10s")
         help="Comma-separated list of service names to port forward. \
 Default value is '*' which means every service in the mapping file", default="*")
     parser.add_argument('-f', '--mapping-file',
-        default='service_mappings.json',
-        help="Path to JSON file with service_name -> kubernetes_service_name mappings")
+        default=None,
+        help="Path to JSON file with service_name -> kubernetes_service_name mappings. \
+Defaults to the default_service_mappings_path configuration property")
     parser.add_argument('--invalidate-cache', help="Invalidates namespaces cache", action='store_true')
     args = parser.parse_args()
 
@@ -64,7 +65,8 @@ Default value is '*' which means every service in the mapping file", default="*"
     if args.map:
         replacements = dict(pair.split('=') for pair in args.map.split(','))
     elif args.services and args.namespace:
-        service_mappings = load_service_mappings(args.mapping_file)
+        mapping_file = args.mapping_file or configuration.default_service_mappings_path
+        service_mappings = load_service_mappings(mapping_file)
 
         if args.services == "*":
             service_filter = list(service_mappings.keys())
