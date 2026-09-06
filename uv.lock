@@ -2765,8 +2765,8 @@ wheels = [
 
 [[package]]
 name = "service-lookup"
-version = "0.2.8"
-source = { virtual = "." }
+version = "0.3.0"
+source = { editable = "." }
 dependencies = [
     { name = "keyboard" },
     { name = "psutil" },
