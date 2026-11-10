@@ -30,11 +30,23 @@ def load_service_mappings(mapping_file):
     except json.JSONDecodeError as e:
         raise ValueError(f"Mapping file '{mapping_file}' contains invalid JSON.") from e
 
-def get_context_from_kubeconfig(kubecfg):
-    """Extract the context name from a kubeconfig file."""
+def get_context_from_kubeconfig(kubecfg, cluster=None):
+    """Extract the context name from a kubeconfig file.
+
+    If a cluster name is given, the context pointing at that cluster is
+    returned instead of the current context.
+    """
     try:
         with open(kubecfg, encoding='utf-8') as f:
             config = yaml.load(f)
+
+            if cluster:
+                for context in config.get('contexts', []):
+                    if context.get('context', {}).get('cluster') == cluster:
+                        return context.get('name')
+                print(f"No context found for cluster '{cluster}' in the kubeconfig.")
+                return None
+
             current_context = config.get('current-context')
             if current_context:
                 return current_context
@@ -70,11 +82,11 @@ def port_forward_services(service_filter, service_mappings, services, namespace,
 
 
 def discover_services_and_port_forward(namespace, service_filter,
-    service_mappings, kubecfg):
+    service_mappings, kubecfg, cluster=None):
 
     """Looks up services in a Kubernetes cluster, returns a map with the forwarded local ports."""
     try:
-        context_name = get_context_from_kubeconfig(kubecfg)
+        context_name = get_context_from_kubeconfig(kubecfg, cluster)
         if not context_name:
             print("Failed to determine context.")
             return {}

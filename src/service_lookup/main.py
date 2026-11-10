@@ -78,7 +78,7 @@ Defaults to the default_service_mappings_path configuration property")
                                     args.request_timeout, args.cluster, args.invalidate_cache, configuration)
 
         replacements = discover_services_and_port_forward(
-            args.namespace, service_filter, service_mappings, kubeconfig)
+            args.namespace, service_filter, service_mappings, kubeconfig, args.cluster)
     else:
         print("Error: You must either provide a Kubernetes cluster namespace \
 and selected services, or a service=host:port map.")
